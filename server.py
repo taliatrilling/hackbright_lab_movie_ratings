@@ -42,6 +42,7 @@ def sign_in():
 
     return render_template("sign_in.html")
 
+
 @app.route("/sign-in-success", methods=["POST", "GET"])
 def sign_in_success():
     """Checks if username in system"""
@@ -69,12 +70,33 @@ def sign_in_success():
             flash("Your password was invalid, please try again")
             return render_template("sign_in.html")
 
+
 @app.route("/logout")
 def logout_success():
     """Logs out user by deleting the session associated with their account, redirects to homepage"""
 
     del session["username"]
+    flash("You have been successfully logged out")
     return redirect("/")
+
+
+@app.route("/user")
+def show_user():
+    """Shows the information associated with a specific user, defaults to show talia"""
+
+    username = request.args.get("user_id", 945)
+
+    if User.query.filter(User.user_id == username).first():
+        age = db.session.query(User.age).filter(User.user_id == username).first()
+        zipcode = db.session.query(User.zipcode).filter(User.user_id == username).first()
+        email = db.session.query(User.email).filter(User.user_id == username).first()
+        user_ratings = db.session.query(Rating.movie_id, Rating.score).filter(Rating.user_id == username).all()
+
+        return render_template("user.html", username=username, age=age, zipcode=zipcode,
+            email=email, user_ratings=user_ratings)
+    else:
+        flash("That user does not currently exist in the database.")
+        return redirect ("/users")
 
 
 
