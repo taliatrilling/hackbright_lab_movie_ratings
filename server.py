@@ -91,9 +91,13 @@ def show_user():
         zipcode = db.session.query(User.zipcode).filter(User.user_id == username).first()
         email = db.session.query(User.email).filter(User.user_id == username).first()
         user_ratings = db.session.query(Rating.movie_id, Rating.score).filter(Rating.user_id == username).all()
-
+        movie_titles = []
+        for item in user_ratings:
+            my_movie_id = item[0]
+            title = db.session.query(Movie.title).filter(Movie.movie_id == my_movie_id).first()
+            movie_titles.append(title)
         return render_template("user.html", username=username, age=age, zipcode=zipcode,
-            email=email, user_ratings=user_ratings)
+            email=email, user_ratings=user_ratings, movie_titles=movie_titles)
     else:
         flash("That user does not currently exist in the database.")
         return redirect ("/users")

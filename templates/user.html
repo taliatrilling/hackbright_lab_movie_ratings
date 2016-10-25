@@ -6,9 +6,8 @@
 <h2>User Id: {{username}}<br><br>Email: {{ email[0] }}<br><br>Age: {{ age[0] }}<br><br>
   Zipcode: {{ zipcode[0] }}<br><br></h2>
 <ul>
-  {% for rating in user_ratings %}
-    <li>Movie: {{ rating[0] }} Score: {{ rating[1] }}
-
+  {% for i in range(user_ratings|length) %}
+     <li>Movie: {{ movie_titles[i] }} Score: {{ user_ratings[i][1] }}</li>
   {% endfor %}
 </ul>
 {% endblock %}
