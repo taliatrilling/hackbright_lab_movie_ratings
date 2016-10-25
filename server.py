@@ -3,7 +3,7 @@
 from jinja2 import StrictUndefined
 
 from flask import (Flask, render_template, redirect, request,
-    flash, session)
+    flash, session, make_response)
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import User, Rating, Movie, connect_to_db, db
@@ -18,6 +18,7 @@ app.secret_key = "ABC"
 # silently. This is horrible. Fix this so that, instead, it raises an
 # error.
 app.jinja_env.undefined = StrictUndefined
+app.jinja_env.auto_reload = True
 
 
 @app.route('/')
@@ -41,19 +42,39 @@ def sign_in():
 
     return render_template("sign_in.html")
 
-@app.route("/sign-in-success", methods=["POST"])
+@app.route("/sign-in-success", methods=["POST", "GET"])
 def sign_in_success():
     """Checks if username in system"""
+
+    error = None
 
     username = request.form.get("username")
     password = request.form.get("password")
 
-    if not User.query.filter(User.email == username):
+
+    if not User.query.filter(User.email == username).first():
         user = User(email=username, password=password)
         db.session.add(user)
         db.session.commit()
+        flash("You are successfully logged in, %s" % username)
+        session["username"] = username
+        return redirect("/") 
+    else:
+        if User.query.filter(User.email == username, User.password == password).first():
+            if request.method == "POST":
+                flash("You are successfully logged in, %s" % username)
+                session["username"] = username
+                return redirect("/") 
+        else: 
+            flash("Your password was invalid, please try again")
+            return render_template("sign_in.html")
 
-    return render_template("sign_in_success.html", username=username)
+@app.route("/logout")
+def logout_success():
+    """Logs out user by deleting the session associated with their account, redirects to homepage"""
+
+    del session["username"]
+    return redirect("/")
 
 
 
