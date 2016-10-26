@@ -65,7 +65,8 @@ def sign_in_success():
             if request.method == "POST":
                 flash("You are successfully logged in, %s" % username)
                 session["username"] = username
-                return redirect("/") 
+                my_user_id = db.session.query(User.user_id).filter(User.email == username, User.password == password).first()
+                return redirect("/user?user_id=" + str(my_user_id[0])) 
         else: 
             flash("Your password was invalid, please try again")
             return render_template("sign_in.html")
@@ -102,6 +103,13 @@ def show_user():
         flash("That user does not currently exist in the database.")
         return redirect ("/users")
 
+
+@app.route("/movies")
+def show_movies():
+
+    movies = Movie.query.order_by(Movie.title).all()
+
+    return render_template("movies.html", movies=movies)
 
 
 if __name__ == "__main__":

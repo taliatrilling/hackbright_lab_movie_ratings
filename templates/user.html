@@ -7,7 +7,7 @@
   Zipcode: {{ zipcode[0] }}<br><br></h2>
 <ul>
   {% for i in range(user_ratings|length) %}
-     <li>Movie: {{ movie_titles[i] }} Score: {{ user_ratings[i][1] }}</li>
+     <li>Movie: <a href="/movie?movie_id={{ user_ratings[i][0] }}">{{ movie_titles[i][0] }}</a> Score: {{ user_ratings[i][1] }}</li>
   {% endfor %}
 </ul>
 {% endblock %}
