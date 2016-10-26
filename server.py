@@ -135,6 +135,7 @@ def show_individual_movie():
         flash("That movie does not currently exist in the database.")
         return redirect ("/movies")
 
+
 @app.route("/process-score", methods=["POST"])
 def set_score():
     """Checks if the user has already set a score for the movie in question, if so, updates it, otherwise 
@@ -159,10 +160,7 @@ def set_score():
         db.session.commit()
         flash("Your new rating was successfully added.")
         return redirect ("/movie?movie_id=" + str(my_movie_id))
-
-    flash("test")
-    return redirect ("/movie?movie_id=" + str(my_movie_id))
-
+        
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
