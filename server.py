@@ -8,6 +8,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from model import User, Rating, Movie, connect_to_db, db
 
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -122,16 +123,45 @@ def show_individual_movie():
     if Movie.query.filter(Movie.movie_id == my_movie_id).first():
         title = db.session.query(Movie.title).filter(Movie.movie_id == my_movie_id).first()
         release_date = db.session.query(Movie.released_at).filter(Movie.movie_id == my_movie_id).first()
+        release_date = datetime.strftime(release_date[0], "%B %d, %Y")
         imdb_url = db.session.query(Movie.imdb_url).filter(Movie.movie_id == my_movie_id).first()
         user_ratings = db.session.query(Rating.user_id, Rating.score).filter(Rating.movie_id == my_movie_id).all()
         all_ratings = []
         for item in user_ratings:
             all_ratings.append(item)
         return render_template("movie.html", title=title, release_date=release_date, imdb_url=imdb_url,
-            all_ratings=all_ratings)
+            all_ratings=all_ratings, my_movie_id=my_movie_id)
     else:
         flash("That movie does not currently exist in the database.")
         return redirect ("/movies")
+
+@app.route("/process-score", methods=["POST"])
+def set_score():
+    """Checks if the user has already set a score for the movie in question, if so, updates it, otherwise 
+    adds a new score for that user and that movie"""
+
+    new_score = request.form.get("score")
+    my_movie_id = int(request.form.get("movieid"))
+    username = session["username"]
+    my_user_id = db.session.query(User.user_id).filter(User.email==username).first()
+
+    if db.session.query(Rating.score).filter(Rating.movie_id == my_movie_id, 
+        Rating.user_id == my_user_id).first():
+        rating = db.session.query(Rating).filter(Rating.movie_id == my_movie_id, 
+        Rating.user_id == my_user_id).first()
+        rating.score = new_score
+        db.session.commit()
+        flash("Your rating was successfully updated.")
+        return redirect ("/movie?movie_id=" + str(my_movie_id))
+    else:
+        rating = Rating(user_id=my_user_id, movie_id=my_movie_id, score=new_score)
+        db.session.add(rating)
+        db.session.commit()
+        flash("Your new rating was successfully added.")
+        return redirect ("/movie?movie_id=" + str(my_movie_id))
+
+    flash("test")
+    return redirect ("/movie?movie_id=" + str(my_movie_id))
 
 
 if __name__ == "__main__":
