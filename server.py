@@ -106,10 +106,32 @@ def show_user():
 
 @app.route("/movies")
 def show_movies():
+    """Shows all the movies in the database along with links to the individual pages for these movies"""
 
     movies = Movie.query.order_by(Movie.title).all()
 
     return render_template("movies.html", movies=movies)
+
+
+@app.route("/movie")
+def show_individual_movie():
+    """Shows the details associated with a particular movie, defaults to showing 101 Dalmations"""
+
+    my_movie_id = request.args.get("movie_id", 225)
+
+    if Movie.query.filter(Movie.movie_id == my_movie_id).first():
+        title = db.session.query(Movie.title).filter(Movie.movie_id == my_movie_id).first()
+        release_date = db.session.query(Movie.released_at).filter(Movie.movie_id == my_movie_id).first()
+        imdb_url = db.session.query(Movie.imdb_url).filter(Movie.movie_id == my_movie_id).first()
+        user_ratings = db.session.query(Rating.user_id, Rating.score).filter(Rating.movie_id == my_movie_id).all()
+        all_ratings = []
+        for item in user_ratings:
+            all_ratings.append(item)
+        return render_template("movie.html", title=title, release_date=release_date, imdb_url=imdb_url,
+            all_ratings=all_ratings)
+    else:
+        flash("That movie does not currently exist in the database.")
+        return redirect ("/movies")
 
 
 if __name__ == "__main__":

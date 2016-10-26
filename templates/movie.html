@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Title: {{ title[0] }}</h1>
+<h2>Released: {{ release_date[0] }}</h2>
+<h3><a href="{{ imdb_url[0] }}">IMDB URL</a></h3>
+{% if "username" in session %}
+  <h4>Add a new rating: </h4>
+  <form action="" method="POST">
+<!--     NEED TO MAKE FORM HERE -->
+  </form>
+{% endif %}
+  <ul>
+    {% for item in all_ratings %}
+    <li>User #<a href="/user?user_id={{ item[0] }}">{{ item[0] }}</a> gave a rating of {{ item[1] }}</li>
+    {% endfor %}
+  </ul>
+
+
+
+{% endblock %}
