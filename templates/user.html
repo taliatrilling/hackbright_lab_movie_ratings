@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>User Information</h1>
+<h1 class="pageheader">User Information</h1>
 
-<h2>User Id: {{username}}<br><br>Email: {{ email[0] }}<br><br>Age: {{ age[0] }}<br><br>
+<h2 class="userinfo">User Id: {{username}}<br><br>Email: {{ email[0] }}<br><br>Age: {{ age[0] }}<br><br>
   Zipcode: {{ zipcode[0] }}<br><br></h2>
+<h2 class="individuallink">Ratings given:</h2>
 <ul>
   {% for i in range(user_ratings|length) %}
-     <li>Movie: <a href="/movie?movie_id={{ user_ratings[i][0] }}">{{ movie_titles[i][0] }}</a> Score: {{ user_ratings[i][1] }}</li>
+     <li class="individuallink">Movie: <a class="individuallink" href="/movie?movie_id={{ user_ratings[i][0] }}">{{ movie_titles[i][0] }}</a>; Score: {{ user_ratings[i][1] }}</li>
   {% endfor %}
 </ul>
 {% endblock %}

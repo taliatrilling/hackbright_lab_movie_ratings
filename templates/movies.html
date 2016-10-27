@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Movies</h1>
+<h1 class="pageheader">Movies</h1>
 <ul>
   {% for movie in movies %}
     {% if movie.title %}
-        <li><a href="/movie?movie_id={{ movie.movie_id }}">{{ movie.title }}</a></li>
+        <li><a class="individuallink" href="/movie?movie_id={{ movie.movie_id }}">{{ movie.title }}</a></li>
     {% endif %}
   {% endfor %}
 </ul>
