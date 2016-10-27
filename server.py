@@ -119,8 +119,27 @@ def show_individual_movie():
     """Shows the details associated with a particular movie, defaults to showing 101 Dalmations"""
 
     my_movie_id = request.args.get("movie_id", 225)
+    movie = Movie.query.get(my_movie_id)
 
     if Movie.query.filter(Movie.movie_id == my_movie_id).first():
+        if "username" in session.keys():
+            user_email = session["username"]
+            user_id = db.session.query(User.user_id).filter(User.email == user_email).first()
+            user_rating = Rating.query.filter(Rating.movie_id == my_movie_id, Rating.user_id == user_id).first()
+        else:
+            user_rating = None
+
+        rating_scores = [r.score for r in movie.ratings]
+        avg_rating = float(sum(rating_scores)) / len(rating_scores)
+
+        prediction = None
+
+        if (not user_rating) and "username" in session.keys():
+            user = User.query.get(user_id)
+            if user:
+                prediction = user.predict_rating(movie)
+
+
         title = db.session.query(Movie.title).filter(Movie.movie_id == my_movie_id).first()
         release_date = db.session.query(Movie.released_at).filter(Movie.movie_id == my_movie_id).first()
         release_date = datetime.strftime(release_date[0], "%B %d, %Y")
@@ -129,8 +148,41 @@ def show_individual_movie():
         all_ratings = []
         for item in user_ratings:
             all_ratings.append(item)
+
+        if prediction:
+            effective_rating = prediction
+        elif user_rating:
+            effective_rating = user_rating.score
+        else:
+            effective_rating = None
+
+        the_eye = (User.query.filter(User.email == "the-eye@of-judgment.com").one())
+        eye_rating = Rating.query.filter(Rating.user_id == the_eye.user_id, Rating.movie_id == movie.movie_id).first()
+
+        if eye_rating is None:
+            eye_rating = the_eye.predict_rating(movie)
+        else:
+            eye_rating = eye_rating.score
+
+        if eye_rating and effective_rating:
+            difference = abs(eye_rating - effective_rating)
+        else:
+            difference = None
+
+        BERATEMENT_MESSAGES= ["I suppose you don't have such bad taste after all.", 
+        "I regret every decision that I've ever made that has brought me to listen to your opinion.",
+        "Words fail me, as your taste in movies has clearly failed you.",
+        "That movie is great. For a clown to watch. Idiot.", 
+        "Words cannot express the awfulness of your taste."]
+
+        if difference is not None:
+            beratement = BERATEMENT_MESSAGES[int(difference)]
+        else:
+            beratement = None
+
         return render_template("movie.html", title=title, release_date=release_date, imdb_url=imdb_url,
-            all_ratings=all_ratings, my_movie_id=my_movie_id)
+            all_ratings=all_ratings, my_movie_id=my_movie_id, user_rating=user_rating, average=avg_rating,
+            prediction=prediction, beratement=beratement)
     else:
         flash("That movie does not currently exist in the database.")
         return redirect ("/movies")
@@ -160,7 +212,7 @@ def set_score():
         db.session.commit()
         flash("Your new rating was successfully added.")
         return redirect ("/movie?movie_id=" + str(my_movie_id))
-        
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the

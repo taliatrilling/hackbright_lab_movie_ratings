@@ -4,7 +4,14 @@
 <h1>Title: {{ title[0] }}</h1>
 <h2>Released: {{ release_date }}</h2>
 <h3><a href="{{ imdb_url[0] }}">IMDB URL</a></h3>
+<h4>Average rating: {{ average }}</h4>
 {% if "username" in session %}
+  {% if prediction %}
+    <h4>We predict you will rate this movie: {{ prediction }}.</h4>
+  {% endif %}
+  {% if beratement %}
+    <h4>{{ beratement }}</h4>
+  {% endif %}
   <h4>Add a new rating: </h4>
   <form action="/process-score" method="POST">
     <input type="hidden" name="movieid" value="{{ my_movie_id }}">
