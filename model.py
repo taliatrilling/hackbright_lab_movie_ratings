@@ -2,6 +2,8 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
+from sqlalchemy.orm import joinedload
+
 import correlation
 
 # This is the connection to the PostgreSQL database; we're getting this through
@@ -36,11 +38,12 @@ class User(db.Model):
         user_ratings = {}
         paired_ratings = []
 
-        for user_rating in self.ratings:
+
+        for user_rating in self.ratings: # query
             user_ratings[user_rating.movie_id] = user_rating
 
-        for other_rating in other.ratings:
-            r = user_ratings.get(other_rating.movie_id) # my rating for other's movie
+        for other_rating in other.ratings: # query
+            r = user_ratings.get(other_rating.movie_id) # query
             if r:
                 paired_ratings.append( (r.score, other_rating.score) )
 
@@ -53,9 +56,9 @@ class User(db.Model):
     def predict_rating(self, movie):
         """Predict a user's rating of a movie"""
 
-        other_ratings = movie.ratings
+        other_ratings = movie.ratings # all users
 
-        similarities = [(self.similarity(r.user), r) for r in other_ratings]
+        similarities = [(self.similarity(r.user), r) for r in other_ratings] # query for every user
 
         similarities.sort(reverse=True)
 
@@ -116,6 +119,7 @@ def connect_to_db(app):
     """Connect the database to our Flask app."""
 
     # Configure to use our PstgreSQL database
+    app.config['SQLALCHEMY_ECHO'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///ratings'
     db.app = app
     db.init_app(app)

@@ -64,5 +64,13 @@ a {
 }
 
 .navbar {
-        font-family: 'Creepster', cursive;
+    font-family: 'Creepster', cursive;
+}
+
+.flashes {
+    font-family: 'Playfair Display', serif;
+}
+
+.signin {
+    font-family: 'Playfair Display', serif;
 }
