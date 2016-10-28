@@ -137,7 +137,7 @@ def show_individual_movie():
         if (not user_rating) and "username" in session.keys():
             user = User.query.get(user_id)
             if user:
-                prediction = user.predict_rating(my_movie_id)
+                prediction = user.predict_rating(movie)
 
 
         title = db.session.query(Movie.title).filter(Movie.movie_id == my_movie_id).first()
@@ -160,7 +160,7 @@ def show_individual_movie():
         eye_rating = Rating.query.filter(Rating.user_id == the_eye.user_id, Rating.movie_id == movie.movie_id).first()
 
         if eye_rating is None:
-            eye_rating = the_eye.predict_rating(my_movie_id)
+            eye_rating = the_eye.predict_rating(movie)
         else:
             eye_rating = eye_rating.score
 
